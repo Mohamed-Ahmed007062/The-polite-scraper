@@ -1,0 +1,27 @@
+{
+  "name": "the-polite-scraper",
+  "version": "1.0.0",
+  "description": "A polite, resilient web scraping pipeline for Books to Scrape (FlyRank W5 · A9)",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "scrape": "node src/index.js",
+    "scrape:test-failure": "node src/index.js --test-failure",
+    "test": "node --test test/*.test.js",
+    "clean:cache": "node -e \"import('fs').then(fs => fs.promises.rm('cache', { recursive: true, force: true }))\""
+  },
+  "keywords": [
+    "web-scraping",
+    "cheerio",
+    "zod",
+    "polite-scraper",
+    "etl"
+  ],
+  "author": "Mohamed-Ahmed007062",
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "zod": "^3.23.8"
+  }
+}

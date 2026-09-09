@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Local HTML Cache (Never commit cached pages)
+cache/
+
+# Environment and local configs
+.env
+.env.local
+
+# Logs and OS files
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
