@@ -1,12 +1,12 @@
-import { config } from './config.js';
-import { fetchWithCache } from './client.js';
+import { discoverCatalogueBooks } from './crawler.js';
 
 async function main() {
-  console.log('=== Stage 1: Fetch Once, Cache Once ===');
-  const targetUrl = config.CATALOGUE_PAGE_1_URL;
-  const result = await fetchWithCache(targetUrl, { cacheKey: 'catalogue-page-1.html' });
+  console.log('=== Stage 2: Discover Three Catalogue Pages ===');
+  const result = await discoverCatalogueBooks();
 
-  console.log(`Summary: Status=${result.status}, FromCache=${result.fromCache}, Size=${result.size} bytes`);
+  console.log(
+    `catalogue_pages=${result.cataloguePagesCount}, discovered=${result.discoveredCount}, unique_urls=${result.uniqueUrlsCount}`
+  );
 }
 
 main().catch((err) => {
