@@ -1,52 +1,31 @@
-import { discoverCatalogueBooks } from './crawler.js';
-import { fetchWithCache } from './client.js';
-import { extractRawBookRecord } from './extractor.js';
-import { normalizeAndValidateBook } from './normalizer.js';
-import { saveResults } from './storage.js';
+import { runScrapingPipeline } from './pipeline.js';
+
+const isTestFailure = process.argv.includes('--test-failure');
 
 async function main() {
-  console.log('=== Stage 4: Clean It, Check It, Store It ===');
-
-  // 1. Discover books from 3 catalogue pages
-  const discovery = await discoverCatalogueBooks();
-  console.log(`Discovered ${discovery.uniqueUrlsCount} books across ${discovery.cataloguePagesCount} catalogue pages.`);
-
-  const validRecords = [];
-  const errors = [];
-
-  // 2. Fetch, extract, normalize, and validate each book
-  for (const { productUrl, sourcePage } of discovery.books) {
-    const fetchStart = new Date().toISOString();
-    const { html } = await fetchWithCache(productUrl);
-    const rawRecord = extractRawBookRecord(html, productUrl, sourcePage, fetchStart);
-
-    const validation = normalizeAndValidateBook(rawRecord);
-    if (validation.isValid) {
-      validRecords.push(validation.record);
-    } else {
-      errors.push(validation.error);
-    }
+  console.log('=== The Polite Scraper: Running Pipeline ===');
+  if (isTestFailure) {
+    console.log('[Notice] Running in --test-failure mode to verify Stage 5 failure survival.');
   }
 
-  // 3. Persist results
-  const { savedCount, errorCount, booksPath } = await saveResults(validRecords, errors);
+  const { savedCount, report } = await runScrapingPipeline({ injectFakeUrl: isTestFailure });
 
-  console.log('\n--- Stage 4 Verification ---');
-  console.log(`Saved records in books.json: ${savedCount}`);
-  console.log(`Errors in errors.json: ${errorCount}`);
+  console.log('\n=======================================');
+  console.log(`Pipeline Complete!`);
+  console.log(`- Valid Books Saved: ${savedCount}`);
+  console.log(`- Cache Hits: ${report.cache_hits}`);
+  console.log(`- Pages Fetched: ${report.pages_fetched}`);
+  console.log(`- Failed Pages: ${report.failed_pages}`);
+  console.log(`- Duration: ${report.duration_seconds}s`);
+  console.log('=======================================');
 
-  // 4. Verify checkpoint assertions
-  const allPricesAreNumbers = validRecords.every((b) => typeof b.price_gbp === 'number' && !isNaN(b.price_gbp));
-  const allUrlsStartHttps = validRecords.every((b) => b.product_url.startsWith('https://'));
-
-  console.log(`Every price_gbp is a number: ${allPricesAreNumbers}`);
-  console.log(`Every product_url starts with https://: ${allUrlsStartHttps}`);
-
-  if (savedCount === 60 && allPricesAreNumbers && allUrlsStartHttps) {
-    console.log('CHECKPOINT PASSED: books.json has exactly 60 validated records!');
-  } else {
-    console.error('CHECKPOINT FAILED: Check criteria mismatch.');
-    process.exit(1);
+  if (isTestFailure) {
+    if (savedCount === 60 && report.failed_pages === 1) {
+      console.log('STAGE 5 CHECKPOINT PASSED: 1 fake URL skipped, 60 good records survived, failed_pages: 1 recorded.');
+    } else {
+      console.error('STAGE 5 CHECKPOINT FAILED: Expected 60 valid records and 1 failed page.');
+      process.exit(1);
+    }
   }
 }
 
