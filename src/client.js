@@ -37,16 +37,41 @@ export function urlToCacheFileName(url) {
 }
 
 /**
- * Fetches HTML from cache if present, otherwise makes a polite HTTP request and caches it.
+ * Calculates retry delay, honoring Retry-After header or exponential backoff with jitter.
+ *
+ * @param {Response} [response]
+ * @param {number} attempt
+ * @returns {number} Delay in milliseconds
+ */
+function calculateBackoffDelay(response, attempt) {
+  if (response && response.headers) {
+    const retryAfter = response.headers.get('Retry-After');
+    if (retryAfter) {
+      const seconds = parseInt(retryAfter, 10);
+      if (!isNaN(seconds)) {
+        return seconds * 1000;
+      }
+    }
+  }
+
+  // Exponential backoff: 2^attempt * 1000ms + random jitter (50-200ms)
+  const baseDelay = Math.pow(2, attempt) * 1000;
+  const jitter = Math.floor(Math.random() * 150) + 50;
+  return baseDelay + jitter;
+}
+
+/**
+ * Fetches HTML from cache if present, otherwise makes a polite HTTP request with
+ * exponential backoff retries and structured logging.
  *
  * @param {string} url - Target URL to fetch
  * @param {object} [options]
  * @param {string} [options.cacheKey] - Custom cache filename
- * @param {boolean} [options.allowRetry=true] - Whether to retry transient errors once
+ * @param {number} [options.maxRetries=2] - Maximum retry attempts for transient errors
  * @returns {Promise<{ html: string, fromCache: boolean, status: number, size: number }>}
  */
 export async function fetchWithCache(url, options = {}) {
-  const { cacheKey, allowRetry = true } = options;
+  const { cacheKey, maxRetries = 2 } = options;
   await ensureDirectory(config.CACHE_DIR);
 
   const fileName = cacheKey || urlToCacheFileName(url);
@@ -70,11 +95,12 @@ export async function fetchWithCache(url, options = {}) {
     await sleep(config.POLITE_DELAY_MS - elapsed);
   }
 
-  // 3. Live request with timeout and honest User-Agent
   console.log(`[FETCH] ${url}`);
   lastNetworkRequestTime = Date.now();
 
-  const attemptFetch = async (isRetry = false) => {
+  let attempt = 0;
+
+  while (attempt <= maxRetries) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), config.REQUEST_TIMEOUT_MS);
 
@@ -92,36 +118,73 @@ export async function fetchWithCache(url, options = {}) {
       clearTimeout(timeoutId);
 
       // Only HTTP 200 means success
-      if (response.status !== 200) {
+      if (response.status === 200) {
+        const html = await response.text();
+        const size = Buffer.byteLength(html, 'utf-8');
+
+        // Save to cache
+        await fs.writeFile(cacheFilePath, html, 'utf-8');
+        console.log(`[FETCH SUCCESS] ${url} (${size} bytes) -> saved to cache/${fileName}`);
+
+        return { html, fromCache: false, status: 200, size };
+      }
+
+      // Permanent errors: never retry 404 (not found) or 403 (forbidden)
+      if (response.status === 404 || response.status === 403) {
         const error = new Error(`HTTP ${response.status}: Failed to fetch ${url}`);
         error.status = response.status;
         throw error;
       }
 
-      const html = await response.text();
-      const size = Buffer.byteLength(html, 'utf-8');
+      // Server error (5xx) or 429 (rate limited) -> eligible for retry
+      if (attempt < maxRetries) {
+        const delay = calculateBackoffDelay(response, attempt);
+        console.warn(
+          JSON.stringify({
+            level: 'warn',
+            event: 'retry_backoff',
+            url,
+            status: response.status,
+            attempt: attempt + 1,
+            retry_delay_ms: delay
+          })
+        );
+        attempt++;
+        await sleep(delay);
+        continue;
+      }
 
-      // Save to cache
-      await fs.writeFile(cacheFilePath, html, 'utf-8');
-      console.log(`[FETCH SUCCESS] ${url} (${size} bytes) -> saved to cache/${fileName}`);
-
-      return { html, fromCache: false, status: 200, size };
+      const error = new Error(`HTTP ${response.status}: Failed after ${attempt} retries`);
+      error.status = response.status;
+      throw error;
     } catch (err) {
       clearTimeout(timeoutId);
 
-      const isTimeout = err.name === 'AbortError';
-      const isServerError = err.status && err.status >= 500 && err.status < 600;
+      // Never retry 404 or 403
+      if (err.status === 404 || err.status === 403) {
+        throw err;
+      }
 
-      // Polite retry rule: retry timeout or 5xx once after a pause; NEVER retry 404 or 403
-      if (!isRetry && allowRetry && (isTimeout || isServerError)) {
-        console.warn(`[RETRYING] Transient failure (${err.message}). Retrying once after 1000ms...`);
-        await sleep(1000);
-        return attemptFetch(true);
+      const isTimeout = err.name === 'AbortError';
+
+      if (attempt < maxRetries) {
+        const delay = calculateBackoffDelay(null, attempt);
+        console.warn(
+          JSON.stringify({
+            level: 'warn',
+            event: 'retry_backoff',
+            url,
+            reason: isTimeout ? 'timeout' : err.message,
+            attempt: attempt + 1,
+            retry_delay_ms: delay
+          })
+        );
+        attempt++;
+        await sleep(delay);
+        continue;
       }
 
       throw err;
     }
-  };
-
-  return attemptFetch(false);
+  }
 }

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Polite Scraper - Observability Dashboard</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 2rem; line-height: 1.5; }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+    h1 { font-size: 1.8rem; color: var(--accent); }
+    .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 0.3rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; }
+    .card-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .card-val { font-size: 1.8rem; font-weight: 700; margin-top: 0.5rem; color: var(--text); }
+    .card-val.success { color: var(--success); }
+    .card-val.warning { color: var(--warning); }
+    .card-val.danger { color: var(--danger); }
+    table { width: 100%; border-collapse: collapse; background: var(--card-bg); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+    th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+    th { background: #111827; color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+    tr:hover td { background: rgba(255,255,255,0.02); }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .badge { display: inline-block; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; background: #0369a1; color: #e0f2fe; }
+    footer { margin-top: 2rem; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>The Polite Scraper - Live Observability</h1>
+      <p class="subtitle">Audited data from Books to Scrape (First 3 Catalogue Pages)</p>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-label">Validated Records</div>
+        <div class="card-val success">60</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Average Price</div>
+        <div class="card-val">&pound;35.00</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Price Range</div>
+        <div class="card-val" style="font-size: 1.3rem;">&pound;12.84 - &pound;57.31</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Cache Hits / Live Fetched</div>
+        <div class="card-val">60 / 0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Failed Pages</div>
+        <div class="card-val success">0</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Execution Duration</div>
+        <div class="card-val">0.48s</div>
+      </div>
+    </div>
+
+    <h2 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--muted);">Scraped Catalogue Sample (60 Books)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Price</th>
+          <th>Rating</th>
+          <th>Availability</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr>
+          <td>1</td>
+          <td><strong>A Light in the Attic</strong></td>
+          <td>&pound;51.77</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (22 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td><strong>Tipping the Velvet</strong></td>
+          <td>&pound;53.74</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (20 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/tipping-the-velvet_999/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td><strong>Soumission</strong></td>
+          <td>&pound;50.10</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (20 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/soumission_998/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td><strong>Sharp Objects</strong></td>
+          <td>&pound;47.82</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (20 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/sharp-objects_997/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td><strong>Sapiens: A Brief History of Humankind</strong></td>
+          <td>&pound;54.23</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (20 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/sapiens-a-brief-history-of-humankind_996/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>6</td>
+          <td><strong>The Requiem Red</strong></td>
+          <td>&pound;22.65</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-requiem-red_995/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>7</td>
+          <td><strong>The Dirty Little Secrets of Getting Your Dream Job</strong></td>
+          <td>&pound;33.34</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-dirty-little-secrets-of-getting-your-dream-job_994/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>8</td>
+          <td><strong>The Coming Woman: A Novel Based on the Life of the Infamous Feminist, Victoria Woodhull</strong></td>
+          <td>&pound;17.93</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-coming-woman-a-novel-based-on-the-life-of-the-infamous-feminist-victoria-woodhull_993/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>9</td>
+          <td><strong>The Boys in the Boat: Nine Americans and Their Epic Quest for Gold at the 1936 Berlin Olympics</strong></td>
+          <td>&pound;22.60</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-boys-in-the-boat-nine-americans-and-their-epic-quest-for-gold-at-the-1936-berlin-olympics_992/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>10</td>
+          <td><strong>The Black Maria</strong></td>
+          <td>&pound;52.15</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-black-maria_991/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>11</td>
+          <td><strong>Starving Hearts (Triangular Trade Trilogy, #1)</strong></td>
+          <td>&pound;13.99</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/starving-hearts-triangular-trade-trilogy-1_990/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>12</td>
+          <td><strong>Shakespeare's Sonnets</strong></td>
+          <td>&pound;20.66</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/shakespeares-sonnets_989/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>13</td>
+          <td><strong>Set Me Free</strong></td>
+          <td>&pound;17.46</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/set-me-free_988/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>14</td>
+          <td><strong>Scott Pilgrim's Precious Little Life (Scott Pilgrim #1)</strong></td>
+          <td>&pound;52.29</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/scott-pilgrims-precious-little-life-scott-pilgrim-1_987/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>15</td>
+          <td><strong>Rip it Up and Start Again</strong></td>
+          <td>&pound;35.02</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/rip-it-up-and-start-again_986/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>16</td>
+          <td><strong>Our Band Could Be Your Life: Scenes from the American Indie Underground, 1981-1991</strong></td>
+          <td>&pound;57.25</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/our-band-could-be-your-life-scenes-from-the-american-indie-underground-1981-1991_985/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>17</td>
+          <td><strong>Olio</strong></td>
+          <td>&pound;23.88</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/olio_984/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>18</td>
+          <td><strong>Mesaerion: The Best Science Fiction Stories 1800-1849</strong></td>
+          <td>&pound;37.59</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/mesaerion-the-best-science-fiction-stories-1800-1849_983/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>19</td>
+          <td><strong>Libertarianism for Beginners</strong></td>
+          <td>&pound;51.33</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/libertarianism-for-beginners_982/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>20</td>
+          <td><strong>It's Only the Himalayas</strong></td>
+          <td>&pound;45.17</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/its-only-the-himalayas_981/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>21</td>
+          <td><strong>In Her Wake</strong></td>
+          <td>&pound;12.84</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/in-her-wake_980/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>22</td>
+          <td><strong>How Music Works</strong></td>
+          <td>&pound;37.32</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/how-music-works_979/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>23</td>
+          <td><strong>Foolproof Preserving: A Guide to Small Batch Jams, Jellies, Pickles, Condiments, and More: A Foolproof Guide to Making Small Batch Jams, Jellies, Pickles, Condiments, and More</strong></td>
+          <td>&pound;30.52</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/foolproof-preserving-a-guide-to-small-batch-jams-jellies-pickles-condiments-and-more-a-foolproof-guide-to-making-small-batch-jams-jellies-pickles-condiments-and-more_978/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>24</td>
+          <td><strong>Chase Me (Paris Nights #2)</strong></td>
+          <td>&pound;25.27</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/chase-me-paris-nights-2_977/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>25</td>
+          <td><strong>Black Dust</strong></td>
+          <td>&pound;34.53</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/black-dust_976/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>26</td>
+          <td><strong>Birdsong: A Story in Pictures</strong></td>
+          <td>&pound;54.64</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/birdsong-a-story-in-pictures_975/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>27</td>
+          <td><strong>America's Cradle of Quarterbacks: Western Pennsylvania's Football Factory from Johnny Unitas to Joe Montana</strong></td>
+          <td>&pound;22.50</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/americas-cradle-of-quarterbacks-western-pennsylvanias-football-factory-from-johnny-unitas-to-joe-montana_974/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>28</td>
+          <td><strong>Aladdin and His Wonderful Lamp</strong></td>
+          <td>&pound;53.13</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (19 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/aladdin-and-his-wonderful-lamp_973/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>29</td>
+          <td><strong>Worlds Elsewhere: Journeys Around Shakespeare’s Globe</strong></td>
+          <td>&pound;40.30</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/worlds-elsewhere-journeys-around-shakespeares-globe_972/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>30</td>
+          <td><strong>Wall and Piece</strong></td>
+          <td>&pound;44.18</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/wall-and-piece_971/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>31</td>
+          <td><strong>The Four Agreements: A Practical Guide to Personal Freedom</strong></td>
+          <td>&pound;17.66</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-four-agreements-a-practical-guide-to-personal-freedom_970/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>32</td>
+          <td><strong>The Five Love Languages: How to Express Heartfelt Commitment to Your Mate</strong></td>
+          <td>&pound;31.05</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-five-love-languages-how-to-express-heartfelt-commitment-to-your-mate_969/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>33</td>
+          <td><strong>The Elephant Tree</strong></td>
+          <td>&pound;23.82</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-elephant-tree_968/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>34</td>
+          <td><strong>The Bear and the Piano</strong></td>
+          <td>&pound;36.89</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-bear-and-the-piano_967/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>35</td>
+          <td><strong>Sophie's World</strong></td>
+          <td>&pound;15.94</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/sophies-world_966/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>36</td>
+          <td><strong>Penny Maybe</strong></td>
+          <td>&pound;33.29</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/penny-maybe_965/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>37</td>
+          <td><strong>Maude (1883-1993):She Grew Up with the country</strong></td>
+          <td>&pound;18.02</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/maude-1883-1993she-grew-up-with-the-country_964/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>38</td>
+          <td><strong>In a Dark, Dark Wood</strong></td>
+          <td>&pound;19.63</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/in-a-dark-dark-wood_963/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>39</td>
+          <td><strong>Behind Closed Doors</strong></td>
+          <td>&pound;52.22</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (18 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/behind-closed-doors_962/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>40</td>
+          <td><strong>You can't bury them all: Poems</strong></td>
+          <td>&pound;33.63</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (17 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/you-cant-bury-them-all-poems_961/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>41</td>
+          <td><strong>Slow States of Collapse: Poems</strong></td>
+          <td>&pound;57.31</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (17 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/slow-states-of-collapse-poems_960/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>42</td>
+          <td><strong>Reasons to Stay Alive</strong></td>
+          <td>&pound;26.41</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (17 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/reasons-to-stay-alive_959/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>43</td>
+          <td><strong>Private Paris (Private #10)</strong></td>
+          <td>&pound;47.61</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (17 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/private-paris-private-10_958/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>44</td>
+          <td><strong>#HigherSelfie: Wake Up Your Life. Free Your Soul. Find Your Tribe.</strong></td>
+          <td>&pound;23.11</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (17 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/higherselfie-wake-up-your-life-free-your-soul-find-your-tribe_957/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>45</td>
+          <td><strong>Without Borders (Wanderlove #1)</strong></td>
+          <td>&pound;45.07</td>
+          <td><span class="badge">Two</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/without-borders-wanderlove-1_956/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>46</td>
+          <td><strong>When We Collided</strong></td>
+          <td>&pound;31.77</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/when-we-collided_955/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>47</td>
+          <td><strong>We Love You, Charlie Freeman</strong></td>
+          <td>&pound;50.27</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/we-love-you-charlie-freeman_954/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>48</td>
+          <td><strong>Untitled Collection: Sabbath Poems 2014</strong></td>
+          <td>&pound;14.27</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/untitled-collection-sabbath-poems-2014_953/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>49</td>
+          <td><strong>Unseen City: The Majesty of Pigeons, the Discreet Charm of Snails & Other Wonders of the Urban Wilderness</strong></td>
+          <td>&pound;44.18</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/unseen-city-the-majesty-of-pigeons-the-discreet-charm-of-snails-other-wonders-of-the-urban-wilderness_952/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>50</td>
+          <td><strong>Unicorn Tracks</strong></td>
+          <td>&pound;18.78</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/unicorn-tracks_951/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>51</td>
+          <td><strong>Unbound: How Eight Technologies Made Us Human, Transformed Society, and Brought Our World to the Brink</strong></td>
+          <td>&pound;25.52</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/unbound-how-eight-technologies-made-us-human-transformed-society-and-brought-our-world-to-the-brink_950/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>52</td>
+          <td><strong>Tsubasa: WoRLD CHRoNiCLE 2 (Tsubasa WoRLD CHRoNiCLE #2)</strong></td>
+          <td>&pound;16.28</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/tsubasa-world-chronicle-2-tsubasa-world-chronicle-2_949/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>53</td>
+          <td><strong>Throwing Rocks at the Google Bus: How Growth Became the Enemy of Prosperity</strong></td>
+          <td>&pound;31.12</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/throwing-rocks-at-the-google-bus-how-growth-became-the-enemy-of-prosperity_948/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>54</td>
+          <td><strong>This One Summer</strong></td>
+          <td>&pound;19.49</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/this-one-summer_947/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>55</td>
+          <td><strong>Thirst</strong></td>
+          <td>&pound;17.27</td>
+          <td><span class="badge">Five</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/thirst_946/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>56</td>
+          <td><strong>The Torch Is Passed: A Harding Family Story</strong></td>
+          <td>&pound;19.09</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-torch-is-passed-a-harding-family-story_945/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>57</td>
+          <td><strong>The Secret of Dreadwillow Carse</strong></td>
+          <td>&pound;56.13</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-secret-of-dreadwillow-carse_944/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>58</td>
+          <td><strong>The Pioneer Woman Cooks: Dinnertime: Comfort Classics, Freezer Food, 16-Minute Meals, and Other Delicious Ways to Solve Supper!</strong></td>
+          <td>&pound;56.41</td>
+          <td><span class="badge">One</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-pioneer-woman-cooks-dinnertime-comfort-classics-freezer-food-16-minute-meals-and-other-delicious-ways-to-solve-supper_943/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>59</td>
+          <td><strong>The Past Never Ends</strong></td>
+          <td>&pound;56.50</td>
+          <td><span class="badge">Four</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-past-never-ends_942/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+        <tr>
+          <td>60</td>
+          <td><strong>The Natural History of Us (The Fine Art of Pretending #2)</strong></td>
+          <td>&pound;45.22</td>
+          <td><span class="badge">Three</span></td>
+          <td>In stock (16 available)</td>
+          <td><a href="https://books.toscrape.com/catalogue/the-natural-history-of-us-the-fine-art-of-pretending-2_941/index.html" target="_blank" rel="noopener">View &rarr;</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <footer>
+      Generated on Thu, 10 Sep 2026 10:44:05 GMT &bull; FlyRank Internship W5 A9 &bull; Respectful &amp; Polite Scraping
+    </footer>
+  </div>
+</body>
+</html>

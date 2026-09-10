@@ -4,6 +4,8 @@ import { extractRawBookRecord } from './extractor.js';
 import { normalizeAndValidateBook } from './normalizer.js';
 import { saveResults } from './storage.js';
 import { RunReporter } from './reporter.js';
+import { exportToCsv } from './csvExporter.js';
+import { generateDashboard } from './dashboard.js';
 
 /**
  * Orchestrates the full polite scraping pipeline.
@@ -77,9 +79,13 @@ export async function runScrapingPipeline(options = {}) {
 
   console.log('\n--- Step 3: Storing Data & Enforcing Idempotency ---');
   const { savedCount, errorCount } = await saveResults(validRecords, errors);
+  const csvPath = await exportToCsv(validRecords);
+  console.log(`Exported clean CSV to: output/books.csv`);
 
-  console.log('\n--- Step 4: Finalizing Run Audit Report ---');
+  console.log('\n--- Step 4: Finalizing Run Audit Report & Observability Dashboard ---');
   const { report, reportPath } = await reporter.finish();
+  const dashboardPath = await generateDashboard(validRecords, report);
+  console.log(`Generated observability dashboard to: output/dashboard.html`);
 
   console.log('Run Audit Report:', JSON.stringify(report, null, 2));
 
@@ -89,6 +95,8 @@ export async function runScrapingPipeline(options = {}) {
     report,
     savedCount,
     errorCount,
+    csvPath,
+    dashboardPath,
     reportPath
   };
 }
