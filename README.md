@@ -33,10 +33,21 @@ git clone https://github.com/Mohamed-Ahmed007062/the-polite-scraper.git && cd th
 | Command | Purpose |
 | :--- | :--- |
 | `npm start` | Runs the full polite scraping pipeline (60 books across 3 catalogue pages) |
+| `npm run serve` | Starts the Express REST API server on `http://localhost:3000` for Postman testing |
 | `npm run scrape:test-failure` | **Stage 5 Verification**: Injects 1 deliberate fake URL to prove fault isolation & error reporting |
 | `npm test` | Runs 6 automated unit tests against offline HTML fixtures |
 | `npm run clean:cache` | Clears the local `cache/` directory to force a fresh network crawl |
 | `node benchmarks/browser-comparison.js` | Runs the browser cost benchmark comparison on `quotes.toscrape.com/js` |
+
+---
+
+## 📬 Automated Postman Testing
+
+A complete Postman Collection v2.1.0 is provided in [`postman_collection.json`](postman_collection.json) covering health checks, record validation, price/rating filters, failure survival simulation (Stage 5), and file downloads.
+
+Running the automated Collection Runner executes **13 tests** with **100% pass rate**:
+
+![Postman Test Results](postman_screenshot.png)
 
 ---
 
