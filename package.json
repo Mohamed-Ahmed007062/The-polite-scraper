@@ -6,6 +6,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "serve": "node src/server.js",
+    "start:api": "node src/server.js",
     "scrape": "node src/index.js",
     "scrape:test-failure": "node src/index.js --test-failure",
     "test": "node --test test/*.test.js",
@@ -22,6 +24,7 @@
   "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0",
+    "express": "^5.2.1",
     "zod": "^3.23.8"
   }
 }

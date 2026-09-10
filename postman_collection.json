@@ -1,0 +1,388 @@
+{
+  "info": {
+    "name": "The Polite Scraper API (FlyRank W5)",
+    "_postman_id": "b7814b62-63b7-4d92-bf39-38290f912a7a",
+    "description": "Postman Collection to test and audit The Polite Scraper API (Books to Scrape, 60 records, schema validation, failure survival, reporting)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System & Health",
+      "item": [
+        {
+          "name": "GET API Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Returns an overview of all endpoints supported by the scraper server."
+          },
+          "response": []
+        },
+        {
+          "name": "GET System Health",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Service status is healthy\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(\"healthy\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            },
+            "description": "Checks system health, uptime, and last completed scrape status."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Books Data & Filters",
+      "item": [
+        {
+          "name": "GET All Scraped Books (60 Records)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Contains exactly 60 validated records\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.total).to.eql(60);",
+                  "    pm.expect(json.count).to.eql(60);",
+                  "});",
+                  "pm.test(\"Every record has numeric price_gbp and https URL\", function () {",
+                  "    var json = pm.response.json();",
+                  "    json.data.forEach(function(book) {",
+                  "        pm.expect(book.price_gbp).to.be.a('number');",
+                  "        pm.expect(book.product_url).to.match(/^https:\\/\\//);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"]
+            },
+            "description": "Returns all 60 validated book records extracted from the 3 catalogue pages."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Filter Books by Price Range",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Prices strictly between 20 and 40 GBP\", function () {",
+                  "    var json = pm.response.json();",
+                  "    json.data.forEach(function(b) {",
+                  "        pm.expect(b.price_gbp).to.be.at.least(20);",
+                  "        pm.expect(b.price_gbp).to.be.at.most(40);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?minPrice=20&maxPrice=40",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "20"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "40"
+                }
+              ]
+            },
+            "description": "Filters books with numeric price between £20 and £40."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Filter Books by Rating",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?rating=Three",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "rating",
+                  "value": "Three"
+                }
+              ]
+            },
+            "description": "Filters books by star rating (e.g. Three stars)."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Search Books by Keyword",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/books?search=light",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "light"
+                }
+              ]
+            },
+            "description": "Searches books matching keyword in title or description."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Single Book by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns book details with all 8 keys + price_gbp\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('title');",
+                  "    pm.expect(json).to.have.property('product_url');",
+                  "    pm.expect(json).to.have.property('price_text');",
+                  "    pm.expect(json).to.have.property('price_gbp');",
+                  "    pm.expect(json).to.have.property('rating_text');",
+                  "    pm.expect(json).to.have.property('source_page');",
+                  "    pm.expect(json).to.have.property('fetched_at');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/books/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "books", "1"]
+            },
+            "description": "Retrieves the first book (A Light in the Attic)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Audit & Reporting",
+      "item": [
+        {
+          "name": "GET Run Audit Report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Report contains required audit counters\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('start_time');",
+                  "    pm.expect(json).to.have.property('end_time');",
+                  "    pm.expect(json).to.have.property('duration_seconds');",
+                  "    pm.expect(json).to.have.property('valid_records', 60);",
+                  "    pm.expect(json).to.have.property('failed_pages');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/report",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "report"]
+            },
+            "description": "Retrieves the run-report.json audit metrics file."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Quarantined Errors Log",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/errors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "errors"]
+            },
+            "description": "Retrieves quarantined schema validation and network errors."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Scraper Control",
+      "item": [
+        {
+          "name": "POST Trigger Pipeline (Normal Run)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testFailure\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/scrape",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scrape"]
+            },
+            "description": "Executes the polite scraper pipeline on demand."
+          },
+          "response": []
+        },
+        {
+          "name": "POST Trigger Pipeline (Simulate Failure - Stage 5)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Survives broken page with failed_pages: 1\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.saved_records).to.eql(60);",
+                  "    pm.expect(json.report.failed_pages).to.eql(1);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"testFailure\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/scrape",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "scrape"]
+            },
+            "description": "Simulates Stage 5 failure isolation by injecting 1 deliberate fake URL."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Exports & Observability",
+      "item": [
+        {
+          "name": "GET Download CSV",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "csv"]
+            },
+            "description": "Downloads the RFC 4180 CSV export of all validated records."
+          },
+          "response": []
+        },
+        {
+          "name": "GET Observability Dashboard HTML",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard"]
+            },
+            "description": "Renders the dark-mode HTML observability dashboard."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
