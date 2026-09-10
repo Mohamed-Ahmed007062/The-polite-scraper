@@ -1,1 +1,7 @@
-[]
+[
+  {
+    "url": "https://books.toscrape.com/catalogue/non-existent-broken-book_9999/index.html",
+    "reason": "HTTP 404: Failed to fetch https://books.toscrape.com/catalogue/non-existent-broken-book_9999/index.html",
+    "timestamp": "2026-09-10T11:01:19.220Z"
+  }
+]
